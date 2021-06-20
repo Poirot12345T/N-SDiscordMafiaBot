@@ -1,28 +1,18 @@
-import asyncio
 import discord
-from decouple import config
+from discord.ext import commands
+from dotenv import load_dotenv
+from os import getenv
 
+client = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
-prefix = config("PREFIX")
-client = discord.Client()
-info = "nothing special, I'm just a bot :person_shrugging:"
 
 @client.event
 async def on_ready():
-    print("bot connected")
-
-@client.event
-async def on_message(message):
-    global prefix
-    if message.content.startswith(prefix):
-        if message.content.startswith(prefix + "ping"):
-            await message.channel.send("pong")
-            print('pinged using ping')
-        elif message.content.startswith(prefix + "info"):
-            await message.channel.send(info)
-        else:
-            await message.channel.send("unknown command")
-        
+    print("Ready!")
 
 
-client.run(config("TOKEN"))
+client.load_extension('discord_commands')
+
+load_dotenv()
+token = getenv("TOKEN")
+client.run(token)
