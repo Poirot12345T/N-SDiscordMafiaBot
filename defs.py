@@ -1,80 +1,86 @@
 import time
 
-accuseMessageDict = {}
-cycletime = 24 #time of cycle in hours
-firstDay = True
+accuse_message_dict = {}
+cycletime = 24  # time of cycle in hours
+first_day = True
+admin_room = None  # id of admin room
+accuse_board = None  # id of board
+command_room = None  # id of command room
 
-admin_room = #id of admin room
-accuse_board = #id of board
-command_room = #id of command room
 
-def addAccuseList(messageList): #messageList == message.content.split(" ")
-    who = messageList[1]
+def add_accuse_list(message_list) -> list:  # message_list == message.content.split(" ")
+    who = message_list[1]
     reason = ""
-    for i in range(2,(len(messageList))):
-        reason = reason + messageList[i] + " "
-    reason = reason[:len(reason)-1]
+    for i in range(2, (len(message_list))):
+        reason = reason + message_list[i] + " "
+    reason = reason[:len(reason) - 1]
     return [who, reason]
-    #returns a list
 
-def send_message(messageContent,where): #where is predefined or an ID of a channel we want to reach 
+
+def send_message(message_content, where):  # where is predefined or an ID of a channel we want to reach
     global admin_room
     global command_room
     global accuse_board
     if where == "admin":
-        id = getId(admin_room)
+        id = get_id(admin_room)
     elif where == "command":
-        id = getId(command_room)
+        id = get_id(command_room)
     elif where == "accuselist":
-        id = getId(accuse_board)
+        id = get_id(accuse_board)
     else:
         try:
-            id = getId(int(where))
+            id = get_id(int(where))
         except ValueError:
             raise TypeError("channel not recognised")
-    message.channel.send(messageContent)
-    #returns void
+    message.channel.send(message_content)
 
-def publishAccusion(accuselist, offender): #accuselist is returned from addAccuseList, offender is message.user
+
+def publish_accusion(accuselist, offender):  # accuselist is returned from add_accuse_list, offender is message.user
     who = accuselist[0]
     reason = accuselist[1]
-    global accuseMessageDict
-    for key in accuseMessageDict:
+    global accuse_message_dict
+    already_accused = True
+    for key in accuse_message_dict:
         if key == who:
-            send_message("Whoops, this person was already accused.","command")
-            alreadyAccused = True
-    if not alreadyAccused:
-        send_message("New accusion occured!\n" + who + " was accused by " + offender + " with reason:\n" + reason,"accuselist")
-        messageId = get_last_message_id()
-        accuseMessageDict.add(who,messageId)
-        add_reaction(messageId)
-    #retuns void
-    
-def resolveDay():
+            send_message("Whoops, this person was already accused.", "command")
+            already_accused = True
+    if not already_accused:
+        send_message("New accusion occured!" + who + " was accused by " + offender + " with reason:" + reason,
+                     "accuselist")
+        message_id = get_last_message_id()
+        accuse_message_dict.add(who, message_id)
+        add_reaction(message_id)
+
+
+def resolve_day():
     global cycletime
-    global firstDay
-    global accuseMessageDict
-    highestReaction = 0
-    firstRun = True
-    if not firstDay:
-        for who in accuseMessageDict.keys():
-            messageId = accuseMessageDict.who.value()
-            reactionCount = get_reaction_count(messageId)
-            if reactionCount > highestReaction:
-                winner = [who, reactionCount]
-                highestReaction = winner[1]
-        for who in accuseMessageDict.keys():
-            messageId = accuseMessageDict.who.value()
-            reactionCount = get_reaction_count(messageId)
-            if reactionCount == highestReaction:
-                if firstRun:
-                    send_message("There is not only one person who get the same result of " + str(highestReaction) + " votes:","admin")
-                    firstRun = False
+    global first_day
+    global accuse_message_dict
+    highest_reaction = 0
+    first_run = True
+    if not first_day:
+        for who in accuse_message_dict.keys():
+            message_id = accuse_message_dict.who.value()
+            reaction_count = get_reaction_count(message_id)
+            if reaction_count > highest_reaction:
+                winner = [who, reaction_count]
+                highest_reaction = winner[1]
+        for who in accuse_message_dict.keys():
+            message_id = accuse_message_dict.who.value()
+            reaction_count = get_reaction_count(message_id)
+            if reaction_count == highest_reaction:
+                if first_run:
+                    send_message(
+                        "_there is not only one person who get the same result of " + str(highest_reaction) + " votes:",
+                        "admin")
+                    first_run = False
                 send_message(who, "admin")
                 draw = True
         if not draw:
-            send_message(winner[0] + " won the voting with " + str(winner[1]) + " votes.","admin")
-        accuseMessageDict = {}
-        send_message("Wakey wakey rise and shine, good morning everyone! It's time to do some new accusions! The old ones were closed, it's no longer possible to influence them. Wait for game master to get the result.","accuselist")
-    firstDay = False
-    time.sleep(cycletime*3600)
+            send_message(winner[0] + " won the voting with " + str(winner[1]) + " votes.", "admin")
+        accuse_message_dict = {}
+        send_message(
+            "Wakey wakey rise and shine, good morning everyone! Itt's time to do some new accusions! The old ones were closed, it's no longer possible to influence them. Wait for game master to get the result.",
+            "accuselist")
+    first_day = False
+    time.sleep(cycletime * 3600)
