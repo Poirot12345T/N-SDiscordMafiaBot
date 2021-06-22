@@ -15,7 +15,7 @@ class Commands(commands.Cog):
 
     @commands.command('poll')
     async def poll(self, ctx: commands.Context, title: str, question: str, end_time: str = None, *args):
-        letters = (f':regional_indicator_{x}:' for x in string.ascii_lowercase)
+        letters = '🇦 🇧 🇨 🇩 🇪 🇫 🇬 🇭 🇮 🇯 🇰 🇱 🇲 🇳 🇴 🇵 🇶 🇷 🇸 🇹 🇺 🇻 🇼 🇽 🇾 🇿'.split()
 
         embed = discord.Embed(
             title=title,
@@ -27,7 +27,9 @@ class Commands(commands.Cog):
                         f'another option with `!add your-option-here`'
         )
 
-        await ctx.send(embed=embed)
+        message = await ctx.send(embed=embed)
+        for emoji, _ in zip(letters, args):
+            await message.add_reaction(emoji)
 
 
 def setup(bot: commands.Bot):
