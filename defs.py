@@ -3,6 +3,7 @@ import time
 accuse_message_dict = {}
 cycletime = 24  # time of cycle in hours
 first_day = True
+
 admin_room = None  # id of admin room
 accuse_board = None  # id of board
 command_room = None  # id of command room
